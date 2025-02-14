@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35806.99 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnagramSolver", "AnagramSolver.csproj", "{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Debug|ARM64.Build.0 = Debug|ARM64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Debug|x64.ActiveCfg = Debug|x64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Debug|x64.Build.0 = Debug|x64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Release|ARM64.ActiveCfg = Release|ARM64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Release|ARM64.Build.0 = Release|ARM64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Release|x64.ActiveCfg = Release|x64
+		{4BC930D1-87A7-4DA0-8697-624A0DCBDCF8}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9CAEB30D-C305-48FC-8336-488DD1C73763}
+	EndGlobalSection
+EndGlobal

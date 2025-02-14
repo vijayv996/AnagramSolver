@@ -1,0 +1,14 @@
+{
+  "ID": "f4f926c0-092e-48b2-aa21-e8e1e4d1e4c5",
+  "ActionKeyword": "af",
+  "Disabled": false,
+  "IsGlobal": false,
+  "Name": "AnagramSolver",
+  "Author": "vijay996",
+  "Version": "1.0.0",
+  "Language": "csharp",
+  "Website": "github.com/vijayv996/AnagramSolver",
+  "ExecuteFileName": "Community.PowerToys.Run.Plugin.AnagramSolver.dll",
+  "IcoPathDark": "Images\\AnagramSolver.dark.png",
+  "IcoPathLight": "Images\\AnagramSolver.light.png"
+}
