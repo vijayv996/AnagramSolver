@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Windows;
 using System.Windows.Controls;
 using ManagedCommon;
 using Microsoft.PowerToys.Settings.UI.Library;
@@ -67,9 +70,9 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             {
                 results.Add(new Result
                 {
-                    Title = Name,
-                    SubTitle = Description,
-                    QueryTextDisplay = string.Empty,
+                    Title = "Anagram",
+                    SubTitle = "paste the scrambled word to unscramble",
+                    // QueryTextDisplay = string.Empty,
                     IcoPath = _iconPath,
                     Action = action =>
                     {
@@ -77,6 +80,60 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                     },
                 });
                 return results;
+            }
+            else
+            {
+                string searchTerm = query.Search;
+                var task = retrieve(searchTerm);
+                task.Wait();
+                results.AddRange(task.Result);
+            }
+
+            return results;
+        }
+
+        public class Words
+        {
+            public string[]? best { get; set; }
+
+        }
+
+        public async Task<List<Result>> retrieve(string searchTerm)
+        {
+
+            var results = new List<Result>();
+            var uri = "http://www.anagramica.com/best/:" + searchTerm;
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(uri);
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    Words? resultArr = JsonSerializer.Deserialize<Words>(jsonString);
+                    foreach (var word in resultArr.best)
+                    {
+                        results.Add(new Result
+                        {
+                            Title = word,
+                            SubTitle = "press enter to copy",
+                            IcoPath = _iconPath,
+                            Action = Action =>
+                            {
+                                try
+                                {
+                                    Clipboard.SetText(word);
+                                    return true;
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.Exception("Copy failed", e, GetType());
+                                }
+                                return false;
+                            }
+                        });
+                    }
+                }
             }
 
             return results;
@@ -94,7 +151,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             {
                 return results;
             }
-
+            
             return results;
         }
 
