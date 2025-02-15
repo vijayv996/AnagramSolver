@@ -13,6 +13,7 @@ using Microsoft.PowerToys.Settings.UI.Library;
 using Wox.Infrastructure;
 using Wox.Plugin;
 using Wox.Plugin.Logger;
+using BrowserInfo = Wox.Plugin.Common.DefaultBrowserInfo;
 
 namespace Community.PowerToys.Run.Plugin.AnagramSolver
 {
@@ -63,6 +64,8 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
         {
             ArgumentNullException.ThrowIfNull(query);
 
+            Log.Info("Query: " + query.Search, GetType());
+
             var results = new List<Result>();
 
             // empty query
@@ -110,6 +113,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
+                    Log.Info("received json string: " + jsonString, GetType());
                     Words? resultArr = JsonSerializer.Deserialize<Words>(jsonString);
                     foreach (var word in resultArr.best)
                     {
@@ -133,6 +137,26 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                             }
                         });
                     }
+                }
+                else
+                {
+                    string er = await response.Content.ReadAsStringAsync();
+                    Log.Info("retrieving failed, " + response.StatusCode + er, GetType());
+                    string arguments = "https://github.com/vijayv996/AnagramSolver/issues";
+                    results.Add(new Result
+                    {
+                        Title = "retrieving failed",
+                        SubTitle = "open a github issue with logs",
+                        IcoPath = _iconPath,
+                        Action = Action =>
+                        {
+                            if (!Helper.OpenCommandInShell(BrowserInfo.Path, BrowserInfo.ArgumentsPattern, arguments))
+                            {
+                                return false;
+                            }
+                            return true;
+                        }
+                    });
                 }
             }
 
