@@ -87,8 +87,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             }
             else
             {
-                string searchTerm = query.Search;
-                var task = retrieve(searchTerm);
+                var task = retrieve(query.Search);
                 task.Wait();
                 results.AddRange(task.Result);
             }
@@ -114,11 +113,11 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             public string name { get; set; }
         }
 
-        public async Task<List<Result>> retrieve(string searchTerm)
+        public async Task<List<Result>> retrieve(string search)
         {
 
             var results = new List<Result>();
-            var uri = $"https://unscramblex.com/anagram/{searchTerm}/?dictionary=nwl";
+            var uri = $"https://unscramblex.com/anagram/{search}/?dictionary=nwl";
 
             var web = new HtmlWeb();
             var doc = web.Load(uri);
@@ -129,6 +128,11 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                 var result = JsonSerializer.Deserialize<ItemList>(jsonString);
                 foreach (var item in result.itemListElement)
                 {
+                    if (item.name.Length != search.Length || item.name == "Home")
+                    {
+                        continue;
+                    }
+
                     results.Add(new Result
                     {
                         Title = item.name,
