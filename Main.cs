@@ -14,6 +14,7 @@ using Wox.Infrastructure;
 using Wox.Plugin;
 using Wox.Plugin.Logger;
 using BrowserInfo = Wox.Plugin.Common.DefaultBrowserInfo;
+using HtmlAgilityPack;
 
 namespace Community.PowerToys.Run.Plugin.AnagramSolver
 {
@@ -95,66 +96,56 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             return results;
         }
 
-        public class Words
+        public class ItemList
         {
-            public string[]? best { get; set; }
+            public string @context { get; set; }
+            public string @type { get; set; }
+            public int numberOfItems { get; set; }
+            public List<WordList> itemListElement { get; set; }
+            public string itemListOrder { get; set; }
+            public string name { get; set; }
+        }
 
+        public class WordList
+        {
+            public string @type { get; set; }
+            public int position { get; set; }
+            public string url { get; set; }
+            public string name { get; set; }
         }
 
         public async Task<List<Result>> retrieve(string searchTerm)
         {
 
             var results = new List<Result>();
-            var uri = "http://www.anagramica.com/best/:" + searchTerm;
+            var uri = $"https://unscramblex.com/anagram/{searchTerm}/?dictionary=nwl";
 
-            using (var client = new HttpClient())
+            var web = new HtmlWeb();
+            var doc = web.Load(uri);
+            var scriptNode = doc.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']");
+            if(scriptNode != null)
             {
-                var response = await client.GetAsync(uri);
-                if (response.IsSuccessStatusCode)
+                string jsonString = scriptNode.InnerText;
+                var result = JsonSerializer.Deserialize<ItemList>(jsonString);
+                foreach (var item in result.itemListElement)
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    Log.Info("received json string: " + jsonString, GetType());
-                    Words? resultArr = JsonSerializer.Deserialize<Words>(jsonString);
-                    foreach (var word in resultArr.best)
-                    {
-                        results.Add(new Result
-                        {
-                            Title = word,
-                            SubTitle = "press enter to copy",
-                            IcoPath = _iconPath,
-                            Action = Action =>
-                            {
-                                try
-                                {
-                                    Clipboard.SetText(word);
-                                    return true;
-                                }
-                                catch (Exception e)
-                                {
-                                    Log.Exception("Copy failed", e, GetType());
-                                }
-                                return false;
-                            }
-                        });
-                    }
-                }
-                else
-                {
-                    string er = await response.Content.ReadAsStringAsync();
-                    Log.Info("retrieving failed, " + response.StatusCode + er, GetType());
-                    string arguments = "https://github.com/vijayv996/AnagramSolver/issues";
                     results.Add(new Result
                     {
-                        Title = "retrieving failed",
-                        SubTitle = "open a github issue with logs",
+                        Title = item.name,
+                        SubTitle = "press enter to copy",
                         IcoPath = _iconPath,
                         Action = Action =>
                         {
-                            if (!Helper.OpenCommandInShell(BrowserInfo.Path, BrowserInfo.ArgumentsPattern, arguments))
+                            try
                             {
-                                return false;
+                                Clipboard.SetText(item.name);
+                                return true;
                             }
-                            return true;
+                            catch (Exception e)
+                            {
+                                Log.Exception("Copy failed", e, GetType());
+                            }
+                            return false;
                         }
                     });
                 }
