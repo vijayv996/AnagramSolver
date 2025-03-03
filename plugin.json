@@ -3,6 +3,7 @@
   "ActionKeyword": "as",
   "Disabled": false,
   "IsGlobal": false,
+  "DynamicLoading": true,
   "Name": "AnagramSolver",
   "Author": "vijay996",
   "Version": "1.0.0",
