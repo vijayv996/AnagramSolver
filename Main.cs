@@ -58,10 +58,15 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
         // TODO: return context menus for each Result (optional)
         public List<ContextMenuResult> LoadContextMenus(Result selectedResult)
         {
+            if (selectedResult.Title == Properties.Resources.plugin_name)
+            {
+                return new List<ContextMenuResult>(0);
+            }
+
             return [
                 new() {
                     PluginName = Properties.Resources.plugin_name,
-                    Title = "Open definition in browser",
+                    Title = "Open definition in browser (Ctrl + D)",
                     FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
                     Glyph = "\xe82d", 
                     AcceleratorKey = System.Windows.Input.Key.D,
@@ -90,7 +95,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             {
                 results.Add(new Result
                 {
-                    Title = "anagram",
+                    Title = Properties.Resources.plugin_name,
                     SubTitle = "paste the scrambled word to unscramble",
                     // QueryTextDisplay = string.Empty,
                     IcoPath = _iconPath,
