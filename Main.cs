@@ -68,7 +68,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                     PluginName = Properties.Resources.plugin_name,
                     Title = "Open definition in browser (Ctrl + D)",
                     FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
-                    Glyph = "\xe82d", 
+                    Glyph = "\xe82d",
                     AcceleratorKey = System.Windows.Input.Key.D,
                     AcceleratorModifiers = ModifierKeys.Control,
                     Action = _ => {
@@ -148,9 +148,11 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
 
             string jsonString = scriptNode.InnerText;
             var result = JsonSerializer.Deserialize<ItemList>(jsonString);
+            bool isEmpty = true;
 
             foreach (var item in result.itemListElement)
             {
+
                 if (item.name.Length != search.Length || item.name == "Home")
                 {
                     continue;
@@ -175,6 +177,21 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
                         return false;
                     }
                 });
+
+                isEmpty = false;
+            }
+
+            if (isEmpty)
+            {
+                results.Add(new Result
+                {
+                    Title = "Could not solve anagram",
+                    IcoPath = _iconPath,
+                    Action = _ =>
+                    {
+                        return true;
+                    }
+                });
             }
 
             return results;
@@ -192,7 +209,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             {
                 return results;
             }
-            
+
             return results;
         }
 
