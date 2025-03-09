@@ -15,6 +15,7 @@ using Wox.Plugin;
 using Wox.Plugin.Logger;
 using BrowserInfo = Wox.Plugin.Common.DefaultBrowserInfo;
 using HtmlAgilityPack;
+using System.Windows.Input;
 
 namespace Community.PowerToys.Run.Plugin.AnagramSolver
 {
@@ -57,7 +58,22 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
         // TODO: return context menus for each Result (optional)
         public List<ContextMenuResult> LoadContextMenus(Result selectedResult)
         {
-            return new List<ContextMenuResult>(0);
+            return [
+                new() {
+                    PluginName = Properties.Resources.plugin_name,
+                    Title = "Open definition in browser",
+                    FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
+                    Glyph = "\xe82d", 
+                    AcceleratorKey = System.Windows.Input.Key.D,
+                    AcceleratorModifiers = ModifierKeys.Control,
+                    Action = _ => {
+                        if (!Helper.OpenCommandInShell(BrowserInfo.Path, BrowserInfo.ArgumentsPattern, $"https://en.wiktionary.org/wiki/{selectedResult.Title}")) {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+                ];
         }
 
         // TODO: return query results
@@ -74,7 +90,7 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             {
                 results.Add(new Result
                 {
-                    Title = "Anagram",
+                    Title = "anagram",
                     SubTitle = "paste the scrambled word to unscramble",
                     // QueryTextDisplay = string.Empty,
                     IcoPath = _iconPath,
@@ -117,42 +133,43 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
         {
 
             var results = new List<Result>();
-            var uri = $"https://unscramblex.com/anagram/{search}/?dictionary=nwl";
-
             var web = new HtmlWeb();
-            var doc = web.Load(uri);
+            var doc = web.Load($"https://unscramblex.com/anagram/{search}/?dictionary=nwl");
             var scriptNode = doc.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']");
-            if(scriptNode != null)
+            if (scriptNode == null)
             {
-                string jsonString = scriptNode.InnerText;
-                var result = JsonSerializer.Deserialize<ItemList>(jsonString);
-                foreach (var item in result.itemListElement)
-                {
-                    if (item.name.Length != search.Length || item.name == "Home")
-                    {
-                        continue;
-                    }
+                return results;
+            }
 
-                    results.Add(new Result
-                    {
-                        Title = item.name,
-                        SubTitle = "press enter to copy",
-                        IcoPath = _iconPath,
-                        Action = Action =>
-                        {
-                            try
-                            {
-                                Clipboard.SetText(item.name);
-                                return true;
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Exception("Copy failed", e, GetType());
-                            }
-                            return false;
-                        }
-                    });
+            string jsonString = scriptNode.InnerText;
+            var result = JsonSerializer.Deserialize<ItemList>(jsonString);
+
+            foreach (var item in result.itemListElement)
+            {
+                if (item.name.Length != search.Length || item.name == "Home")
+                {
+                    continue;
                 }
+
+                results.Add(new Result
+                {
+                    Title = item.name,
+                    SubTitle = "press enter to copy",
+                    IcoPath = _iconPath,
+                    Action = Action =>
+                    {
+                        try
+                        {
+                            Clipboard.SetText(item.name);
+                            return true;
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Exception("Copy failed", e, GetType());
+                        }
+                        return false;
+                    }
+                });
             }
 
             return results;
