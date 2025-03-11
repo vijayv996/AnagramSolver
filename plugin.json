@@ -6,7 +6,7 @@
   "DynamicLoading": true,
   "Name": "AnagramSolver",
   "Author": "vijay996",
-  "Version": "2.1.0",
+  "Version": "2.2.0",
   "Language": "csharp",
   "Website": "github.com/vijayv996/AnagramSolver",
   "ExecuteFileName": "Community.PowerToys.Run.Plugin.AnagramSolver.dll",
