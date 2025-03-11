@@ -14,7 +14,6 @@ using Wox.Infrastructure;
 using Wox.Plugin;
 using Wox.Plugin.Logger;
 using BrowserInfo = Wox.Plugin.Common.DefaultBrowserInfo;
-using HtmlAgilityPack;
 using System.Windows.Input;
 
 namespace Community.PowerToys.Run.Plugin.AnagramSolver
@@ -116,58 +115,39 @@ namespace Community.PowerToys.Run.Plugin.AnagramSolver
             return results;
         }
 
-        public class ItemList
-        {
-            public string @context { get; set; }
-            public string @type { get; set; }
-            public int numberOfItems { get; set; }
-            public List<WordList> itemListElement { get; set; }
-            public string itemListOrder { get; set; }
-            public string name { get; set; }
-        }
-
         public class WordList
         {
-            public string @type { get; set; }
-            public int position { get; set; }
-            public string url { get; set; }
-            public string name { get; set; }
+            public required string word { get; set; }
+            public int score { get; set; }
         }
+
 
         public async Task<List<Result>> retrieve(string search)
         {
 
             var results = new List<Result>();
-            var web = new HtmlWeb();
-            var doc = web.Load($"https://unscramblex.com/anagram/{search}/?dictionary=nwl");
-            var scriptNode = doc.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']");
-            if (scriptNode == null)
+            var json = "";
+            using(var client = new HttpClient())
             {
-                return results;
+                var response = await client.GetAsync($"https://api.datamuse.com/words?sp=//{search}");
+                json = await response.Content.ReadAsStringAsync();
             }
-
-            string jsonString = scriptNode.InnerText;
-            var result = JsonSerializer.Deserialize<ItemList>(jsonString);
+            var result = JsonSerializer.Deserialize<List<WordList>>(json);
             bool isEmpty = true;
 
-            foreach (var item in result.itemListElement)
+            foreach (var item in result)
             {
-
-                if (item.name.Length != search.Length || item.name == "Home")
-                {
-                    continue;
-                }
 
                 results.Add(new Result
                 {
-                    Title = item.name,
-                    SubTitle = "press enter to copy",
+                    Title = item.word,
+                    SubTitle = "press enter to copy" + " | score: " + item.score,
                     IcoPath = _iconPath,
                     Action = Action =>
                     {
                         try
                         {
-                            Clipboard.SetText(item.name);
+                            Clipboard.SetText(item.word);
                             return true;
                         }
                         catch (Exception e)
