@@ -1,5 +1,5 @@
-# tubeToys
-A PowerToys plugin to directly search on youtube.
+# AnagramSolver
+A PowerToys plugin to solve anagrams or unscramble words.
 
 ## Installation
 1. Download the latest release from the [releases page](https://github.com/vijayv996/AnagramSolver/releases).
